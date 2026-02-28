@@ -1,16 +1,17 @@
 #pragma once // Copyright 2026 wiserin
 #include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <memory_resource>
 
-
 namespace wbuffer {
+constexpr size_t kMinCapacity = 128; // NOLINT(readability-identifier-naming)
+
 
 class WBuffer {
+    inline static size_t min_capacity = kMinCapacity;
+
     uint8_t* data_ = nullptr;
     std::pmr::memory_resource* resource_ = nullptr;
-    std::unique_ptr<std::pmr::memory_resource> owned_resource_ = nullptr;
 
     size_t size_ = 0;
     size_t capacity_ = 0;
@@ -53,16 +54,14 @@ class WBuffer {
         ~Iterator() = default;
     };
 
-    WBuffer() = default;
+    WBuffer();
 
     WBuffer(const WBuffer& another);
     WBuffer& operator=(const WBuffer& another);
     WBuffer(WBuffer&& another) noexcept;
     WBuffer& operator=(WBuffer&& another) noexcept;
 
-    WBuffer(size_t capacity);
-    WBuffer(size_t capacity, std::pmr::memory_resource* resource);
-    WBuffer(size_t capacity, std::pmr::memory_resource&& resource);
+    WBuffer(size_t capacity, std::pmr::memory_resource* alloc);
 
     [[nodiscard]] uint8_t& operator[](size_t index);
     [[nodiscard]] uint8_t operator[](size_t index) const;
