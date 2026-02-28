@@ -98,6 +98,13 @@ WBuffer& WBuffer::operator=(WBuffer&& another) noexcept {
 }
 
 
+WBuffer::~WBuffer() {
+    if (data_ != nullptr) {
+        resource_->deallocate(data_, capacity_, alignof(uint8_t));
+    }
+}
+
+
 } // namespace wbuffer
 
 
