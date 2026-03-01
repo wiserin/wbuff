@@ -32,8 +32,8 @@ class WBuffer {
         
         Iterator(const Iterator& another) = default;
         Iterator& operator=(const Iterator& another) = default;
-        Iterator(Iterator&& another) = delete;
-        Iterator& operator=(Iterator&& another) = delete;
+        Iterator(Iterator&& another) = default;
+        Iterator& operator=(Iterator&& another) = default;
 
         Iterator& operator++();
         [[nodiscard]] Iterator operator++(int);
@@ -63,7 +63,7 @@ class WBuffer {
     static void SetDefaultCapacity(size_t new_capacity) noexcept;
     static void SetResizeScale(size_t new_scale) noexcept;
 
-    WBuffer();
+    WBuffer() = default;
 
     WBuffer(const WBuffer& another);
     WBuffer& operator=(const WBuffer& another);
@@ -101,8 +101,9 @@ class WBuffer {
     [[nodiscard]] Iterator End();
 
     [[nodiscard]] size_t Size() const noexcept;
+    [[nodiscard]] size_t Capacity() const noexcept;
     [[nodiscard]] bool Empty() const noexcept;
-    [[nodiscard]] bool Clear();
+    void Clear();
 
     void Resize(size_t new_size);
 

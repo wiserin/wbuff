@@ -9,13 +9,6 @@
 namespace wbuffer {
 
 
-WBuffer::WBuffer()
-        : capacity_(kMinCapacity) {
-    data_ = reinterpret_cast<uint8_t*>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        resource_->allocate(kMinCapacity, alignof(uint8_t)));
-}
-
-
 WBuffer::WBuffer(size_t capacity, std::pmr::memory_resource* alloc)
         : resource_(alloc)
         , capacity_(capacity) {

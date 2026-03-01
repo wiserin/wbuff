@@ -1,4 +1,4 @@
-#include <cstddef> // Copyright 2026 wiserin
+#include <algorithm> // Copyright 2026 wiserin
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
@@ -43,9 +43,9 @@ uint8_t WBuffer::Back() const {
 
 void WBuffer::PushBack(uint8_t byte) {
     if (size_ + 1 > capacity_) {
-        Resize(capacity_ * resize_scale);
+        Resize(std::max(capacity_ * resize_scale, kMinCapacity));
     }
-    data_[size_ + 1] = byte;
+    data_[size_] = byte;
     ++size_;
 }
 

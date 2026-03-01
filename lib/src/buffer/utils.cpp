@@ -29,8 +29,23 @@ size_t WBuffer::Size() const noexcept {
 }
 
 
+size_t WBuffer::Capacity() const noexcept {
+    return capacity_;
+}
+
+
 bool WBuffer::Empty() const noexcept {
     return size_ == 0;
+}
+
+
+void WBuffer::Clear() {
+    if (data_ != nullptr) {
+        resource_->deallocate(data_, capacity_, alignof(uint8_t));
+    }
+    size_ = 0;
+    capacity_ = 0;
+    data_ = nullptr;
 }
 
 
@@ -49,9 +64,11 @@ void WBuffer::Resize(size_t new_size) {
         resource_->allocate(new_size, alignof(size_t)));
     
     try {
-        memcpy(tmp, data_, std::min(new_size, size_));
-        resource_->deallocate(data_, capacity_, alignof(uint8_t));
-        size_ = std::min(new_size, size_);
+        if (data_ != nullptr) {
+            memcpy(tmp, data_, std::min(new_size, size_));
+            resource_->deallocate(data_, capacity_, alignof(uint8_t));
+        }
+        size_ = size_ < new_size ? new_size : size_;
         capacity_ = new_size;
         data_ = tmp;
     } catch (...) {

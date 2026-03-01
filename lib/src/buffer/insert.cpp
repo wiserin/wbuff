@@ -1,4 +1,5 @@
-#include <cstddef> // Copyright 2026 wiserin
+#include <algorithm> // Copyright 2026 wiserin
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
@@ -11,7 +12,7 @@ namespace wbuffer {
 
 void WBuffer::RightShift(size_t index, size_t count) { // NOLINT(bugprone-easily-swappable-parameters)
     if (size_ + count > capacity_) {
-        Resize(capacity_ * resize_scale);
+        Resize(std::max(capacity_ * resize_scale, kMinCapacity));
     }
     for (size_t i = size_ - 1; i >= index; --i) {
         data_[i + count] = data_[i];
