@@ -86,38 +86,38 @@ WBuffer::Iterator WBuffer::Iterator::operator-(size_t index) const {
 }
 
 
-size_t WBuffer::Iterator::operator-(const Iterator& another) const {
+size_t WBuffer::Iterator::operator-(Iterator another) const {
     return position_ - another.position_;
 }
 
 
-bool WBuffer::Iterator::operator==(const Iterator& another) const {
+bool WBuffer::Iterator::operator==(Iterator another) const {
     return position_ == another.position_;
 }
 
 
-bool WBuffer::Iterator::operator!=(const Iterator& another) const {
+bool WBuffer::Iterator::operator!=(Iterator another) const {
     return !(*this == another);
 }
 
 
-bool WBuffer::Iterator::operator>=(const Iterator& another) const {
+bool WBuffer::Iterator::operator>=(Iterator another) const {
     return position_ >= another.position_;
 }
 
 
-bool WBuffer::Iterator::operator<=(const Iterator& another) const {
+bool WBuffer::Iterator::operator<=(Iterator another) const {
     return position_ <= another.position_;
 }
 
 
 
-bool WBuffer::Iterator::operator<(const Iterator& another) const {
+bool WBuffer::Iterator::operator<(Iterator another) const {
     return position_ < another.position_;
 }
 
 
-bool WBuffer::Iterator::operator>(const Iterator& another) const {
+bool WBuffer::Iterator::operator>(Iterator another) const {
     return position_ > another.position_;
 }
 
@@ -136,5 +136,3 @@ uint8_t& WBuffer::Iterator::operator[](size_t index) const {
  
 
 } // namespace wbuffer
-
-

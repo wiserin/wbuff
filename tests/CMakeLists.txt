@@ -1,5 +1,6 @@
 add_executable(wbuffer_tests
     cases/base_buffer.cpp
+    cases/extended.cpp
 )
 
 target_link_libraries(wbuffer_tests

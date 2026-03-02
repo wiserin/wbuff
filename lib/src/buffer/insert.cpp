@@ -30,7 +30,7 @@ void WBuffer::LeftShift(size_t index, size_t count) { // NOLINT(bugprone-easily-
 }
 
 
-WBuffer::Iterator WBuffer::Insert(const Iterator& iter, uint8_t byte) {
+WBuffer::Iterator WBuffer::Insert(Iterator iter, uint8_t byte) {
     size_t index = iter - Begin();
     RightShift(index, 1);
     data_[index] = byte;
@@ -39,7 +39,7 @@ WBuffer::Iterator WBuffer::Insert(const Iterator& iter, uint8_t byte) {
 
 
 WBuffer::Iterator WBuffer::Insert(
-        const Iterator& iter, size_t count, uint8_t byte) { // NOLINT(bugprone-easily-swappable-parameters)
+        Iterator iter, size_t count, uint8_t byte) { // NOLINT(bugprone-easily-swappable-parameters)
     size_t index = iter - Begin();
     RightShift(index, count);
 
@@ -51,7 +51,7 @@ WBuffer::Iterator WBuffer::Insert(
 
 
 WBuffer::Iterator WBuffer::Insert(
-        const Iterator& iter, Iterator& begin, const Iterator& end) { // NOLINT(bugprone-easily-swappable-parameters)
+        Iterator iter, Iterator begin, Iterator end) { // NOLINT(bugprone-easily-swappable-parameters)
 
     if (begin > end) {
         throw std::logic_error("Итератор начала не может быть больше итератора конца");
@@ -69,14 +69,14 @@ WBuffer::Iterator WBuffer::Insert(
 }
 
 
-WBuffer::Iterator WBuffer::Erase(const Iterator& iter) {
+WBuffer::Iterator WBuffer::Erase(Iterator iter) {
     size_t index = iter - Begin();
     LeftShift(index, 1);
     return index < size_ ? Begin() + index : End();
 }
 
 
-WBuffer::Iterator WBuffer::Erase(const Iterator& begin, const Iterator& end) {
+WBuffer::Iterator WBuffer::Erase(Iterator begin, Iterator end) {
     if (begin > end) {
         throw std::logic_error("Итератор начала не может быть больше итератора конца");
     }
