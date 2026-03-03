@@ -476,9 +476,4 @@ TEST(WBufferStress, AlternatePushPopStability) {
     }
     EXPECT_TRUE(b.Empty());
 }
-
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
 // NOLINTEND

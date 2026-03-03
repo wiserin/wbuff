@@ -1,4 +1,5 @@
 #pragma once // Copyright 2026 wiserin
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <memory_resource>
@@ -71,6 +72,7 @@ class WBuffer {
     WBuffer(WBuffer&& another) noexcept;
     WBuffer& operator=(WBuffer&& another) noexcept;
 
+    WBuffer(std::pmr::memory_resource* alloc);
     WBuffer(size_t capacity, std::pmr::memory_resource* alloc);
 
     [[nodiscard]] uint8_t& operator[](size_t index);
@@ -78,6 +80,8 @@ class WBuffer {
 
     [[nodiscard]] bool operator==(const WBuffer& another) const noexcept;
     [[nodiscard]] bool operator!=(const WBuffer& another) const noexcept;
+
+    void SetAllocator(std::pmr::memory_resource* alloc) noexcept;
 
     void Swap(WBuffer& another) noexcept;
     static void Swap(WBuffer& lhs, WBuffer& rhs) noexcept;

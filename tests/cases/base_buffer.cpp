@@ -112,8 +112,4 @@ TEST(WBufferBounds, IteratorComparisons) {
     EXPECT_TRUE(it1 != it2);
 }
 
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
 // NOLINTEND
