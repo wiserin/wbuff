@@ -24,6 +24,11 @@ void WBuffer::Swap(WBuffer& lhs, WBuffer& rhs) noexcept {
 }
 
 
+void WBuffer::SetAllocator(std::pmr::memory_resource* alloc) noexcept {
+    resource_ = alloc;
+}
+
+
 size_t WBuffer::Size() const noexcept {
     return size_;
 }

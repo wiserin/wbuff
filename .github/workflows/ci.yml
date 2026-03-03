@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-test:
+    name: Unittest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build gcc g++
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_STANDARD=23
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --output-on-failure --parallel 4
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/Testing/
+
+  san:
+    name: AddressSanitizer
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++
+
+    - name: Configure (ASan)
+      run: |
+        cmake -S . -B build \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
+
+    - name: Build
+      run: |
+        cmake --build build -j4
+
+    - name: Run tests (ASan)
+      run: |
+        cd build/tests
+        ./wiseio_tests
+
+    - name: ASan summary
+      if: always()
+      run: |
+        STATUS="❌ Failed"
+        [ "${{ job.status }}" = "success" ] && STATUS="✅ Passed"
+
+        {
+          echo "## 🧨 AddressSanitizer"
+          echo ""
+          echo "- Status: **$STATUS**"
+        } >> $GITHUB_STEP_SUMMARY

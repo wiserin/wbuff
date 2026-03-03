@@ -9,6 +9,10 @@
 namespace wbuffer {
 
 
+WBuffer::WBuffer(std::pmr::memory_resource* alloc)
+        : resource_(alloc) {}
+
+
 WBuffer::WBuffer(size_t capacity, std::pmr::memory_resource* alloc)
         : resource_(alloc)
         , capacity_(capacity) {

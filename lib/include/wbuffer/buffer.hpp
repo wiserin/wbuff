@@ -1,7 +1,9 @@
 #pragma once // Copyright 2026 wiserin
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <memory_resource>
+
 
 namespace wbuffer {
 constexpr size_t kMinCapacity = 128; // NOLINT(readability-identifier-naming)
@@ -44,14 +46,14 @@ class WBuffer {
         Iterator& operator-=(size_t index);
         [[nodiscard]] Iterator operator-(size_t index) const;
 
-        size_t operator-(const Iterator& another) const;
+        size_t operator-(Iterator another) const;
 
-        [[nodiscard]] bool operator==(const Iterator& another) const;
-        [[nodiscard]] bool operator!=(const Iterator& another) const;
-        [[nodiscard]] bool operator>=(const Iterator& another) const;
-        [[nodiscard]] bool operator<=(const Iterator& another) const;
-        [[nodiscard]] bool operator<(const Iterator& another) const;
-        [[nodiscard]] bool operator>(const Iterator& another) const;
+        [[nodiscard]] bool operator==(Iterator another) const;
+        [[nodiscard]] bool operator!=(Iterator another) const;
+        [[nodiscard]] bool operator>=(Iterator another) const;
+        [[nodiscard]] bool operator<=(Iterator another) const;
+        [[nodiscard]] bool operator<(Iterator another) const;
+        [[nodiscard]] bool operator>(Iterator another) const;
 
         [[nodiscard]] uint8_t& operator*() const;
 
@@ -70,6 +72,7 @@ class WBuffer {
     WBuffer(WBuffer&& another) noexcept;
     WBuffer& operator=(WBuffer&& another) noexcept;
 
+    WBuffer(std::pmr::memory_resource* alloc);
     WBuffer(size_t capacity, std::pmr::memory_resource* alloc);
 
     [[nodiscard]] uint8_t& operator[](size_t index);
@@ -78,12 +81,14 @@ class WBuffer {
     [[nodiscard]] bool operator==(const WBuffer& another) const noexcept;
     [[nodiscard]] bool operator!=(const WBuffer& another) const noexcept;
 
+    void SetAllocator(std::pmr::memory_resource* alloc) noexcept;
+
     void Swap(WBuffer& another) noexcept;
     static void Swap(WBuffer& lhs, WBuffer& rhs) noexcept;
 
-    Iterator Insert(const Iterator& iter, uint8_t byte);
-    Iterator Insert(const Iterator& iter, size_t count, uint8_t byte);
-    Iterator Insert(const Iterator& iter, Iterator& begin, const Iterator& end);
+    Iterator Insert(Iterator iter, uint8_t byte);
+    Iterator Insert(Iterator iter, size_t count, uint8_t byte);
+    Iterator Insert(Iterator iter, Iterator begin, Iterator end);
 
     [[nodiscard]] uint8_t& Front();
     [[nodiscard]] uint8_t Front() const;
@@ -94,8 +99,8 @@ class WBuffer {
     void PushBack(uint8_t byte);
     void PopBack();
 
-    Iterator Erase(const Iterator& iter);
-    Iterator Erase(const Iterator& begin, const Iterator& end);
+    Iterator Erase(Iterator iter);
+    Iterator Erase(Iterator begin, Iterator end);
 
     [[nodiscard]] Iterator Begin();
     [[nodiscard]] Iterator End();
@@ -108,6 +113,6 @@ class WBuffer {
     void Resize(size_t new_size);
 
     ~WBuffer();
-};  
+};
 
 } // namespace wbuffer
