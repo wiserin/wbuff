@@ -25,6 +25,15 @@ uint8_t WBuffer::operator[](size_t index) const {
 }
 
 
+bool WBuffer::operator==(const BaseWBuffer& another) const {
+    const WBuffer* another_ptr = dynamic_cast<const WBuffer*>(&another);
+    if (another_ptr == nullptr) {
+        return false;
+    }
+    return *this == *another_ptr;
+}
+
+
 bool WBuffer::operator==(const WBuffer& another) const {
     if (size_ != another.size_) {
         return false;
@@ -35,6 +44,15 @@ bool WBuffer::operator==(const WBuffer& another) const {
         }
     }
     return true;
+}
+
+
+bool WBuffer::operator!=(const BaseWBuffer& another) const {
+    const WBuffer* another_ptr = dynamic_cast<const WBuffer*>(&another);
+    if (another_ptr == nullptr) {
+        return true;
+    }
+    return *this != *another_ptr;
 }
 
 

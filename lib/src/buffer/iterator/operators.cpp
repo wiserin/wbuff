@@ -8,7 +8,7 @@
 namespace wbuffer {
 
 
-WBuffer::Iterator& WBuffer::Iterator::operator++() {
+BaseWBuffer::Iterator& BaseWBuffer::Iterator::operator++() {
     if (position_ + 1 > size_) {
         throw std::out_of_range("Позиция итератора не может быть > size");
     }
@@ -17,7 +17,7 @@ WBuffer::Iterator& WBuffer::Iterator::operator++() {
 }
 
 
-WBuffer::Iterator WBuffer::Iterator::operator++(int) {
+BaseWBuffer::Iterator BaseWBuffer::Iterator::operator++(int) {
     if (position_ + 1 > size_) {
         throw std::out_of_range("Позиция итератора не может быть > size");
     }
@@ -27,7 +27,7 @@ WBuffer::Iterator WBuffer::Iterator::operator++(int) {
 }
 
 
-WBuffer::Iterator& WBuffer::Iterator::operator--() {
+BaseWBuffer::Iterator& BaseWBuffer::Iterator::operator--() {
     if (position_ - 1 < 0) {
         throw std::out_of_range("Позиция итератора не может быть < 0");
     }
@@ -36,7 +36,7 @@ WBuffer::Iterator& WBuffer::Iterator::operator--() {
 }
 
 
-WBuffer::Iterator WBuffer::Iterator::operator--(int) {
+BaseWBuffer::Iterator BaseWBuffer::Iterator::operator--(int) {
     if (position_ - 1 < 0) {
         throw std::out_of_range("Позиция итератора не может быть < 0");
     }
@@ -46,7 +46,7 @@ WBuffer::Iterator WBuffer::Iterator::operator--(int) {
 }
 
 
-WBuffer::Iterator& WBuffer::Iterator::operator+=(size_t index) {
+BaseWBuffer::Iterator& BaseWBuffer::Iterator::operator+=(size_t index) {
     if (position_ + index > size_) {
         throw std::out_of_range("Позиция итератора не может быть > size");
     }
@@ -55,7 +55,7 @@ WBuffer::Iterator& WBuffer::Iterator::operator+=(size_t index) {
 }
 
 
-WBuffer::Iterator WBuffer::Iterator::operator+(size_t index) const {
+BaseWBuffer::Iterator BaseWBuffer::Iterator::operator+(size_t index) const {
     if (position_ + index > size_) {
         throw std::out_of_range("Позиция итератора не может быть > size");
     }
@@ -66,7 +66,7 @@ WBuffer::Iterator WBuffer::Iterator::operator+(size_t index) const {
 }
 
 
-WBuffer::Iterator& WBuffer::Iterator::operator-=(size_t index) {
+BaseWBuffer::Iterator& BaseWBuffer::Iterator::operator-=(size_t index) {
     if (position_ - index < 0) {
         throw std::out_of_range("Позиция итератора не может быть < 0");
     }
@@ -75,7 +75,7 @@ WBuffer::Iterator& WBuffer::Iterator::operator-=(size_t index) {
 }
 
 
-WBuffer::Iterator WBuffer::Iterator::operator-(size_t index) const {
+BaseWBuffer::Iterator BaseWBuffer::Iterator::operator-(size_t index) const {
     if (position_ - index < 0) {
         throw std::out_of_range("Позиция итератора не может быть < 0");
     }
@@ -86,48 +86,48 @@ WBuffer::Iterator WBuffer::Iterator::operator-(size_t index) const {
 }
 
 
-size_t WBuffer::Iterator::operator-(Iterator another) const {
+size_t BaseWBuffer::Iterator::operator-(Iterator another) const {
     return position_ - another.position_;
 }
 
 
-bool WBuffer::Iterator::operator==(Iterator another) const {
+bool BaseWBuffer::Iterator::operator==(Iterator another) const {
     return position_ == another.position_;
 }
 
 
-bool WBuffer::Iterator::operator!=(Iterator another) const {
+bool BaseWBuffer::Iterator::operator!=(Iterator another) const {
     return !(*this == another);
 }
 
 
-bool WBuffer::Iterator::operator>=(Iterator another) const {
+bool BaseWBuffer::Iterator::operator>=(Iterator another) const {
     return position_ >= another.position_;
 }
 
 
-bool WBuffer::Iterator::operator<=(Iterator another) const {
+bool BaseWBuffer::Iterator::operator<=(Iterator another) const {
     return position_ <= another.position_;
 }
 
 
 
-bool WBuffer::Iterator::operator<(Iterator another) const {
+bool BaseWBuffer::Iterator::operator<(Iterator another) const {
     return position_ < another.position_;
 }
 
 
-bool WBuffer::Iterator::operator>(Iterator another) const {
+bool BaseWBuffer::Iterator::operator>(Iterator another) const {
     return position_ > another.position_;
 }
 
 
-uint8_t& WBuffer::Iterator::operator*() const {
+uint8_t& BaseWBuffer::Iterator::operator*() const {
     return ptr_[position_];
 }
 
 
-uint8_t& WBuffer::Iterator::operator[](size_t index) const {
+uint8_t& BaseWBuffer::Iterator::operator[](size_t index) const {
     if (index >= size_) {
         throw std::out_of_range("Выход за границы массива"); 
     }
