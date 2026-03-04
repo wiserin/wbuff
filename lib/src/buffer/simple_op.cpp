@@ -43,7 +43,7 @@ uint8_t WBuffer::Back() const {
 
 void WBuffer::PushBack(uint8_t byte) {
     if (size_ + 1 > capacity_) {
-        Resize(std::max(capacity_ * resize_scale, kMinCapacity));
+        Resize(std::max(capacity_ * resize_scale, default_capacity));
     }
     data_[size_] = byte;
     ++size_;

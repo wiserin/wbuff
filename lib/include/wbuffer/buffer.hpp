@@ -1,17 +1,16 @@
 #pragma once // Copyright 2026 wiserin
-#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <memory_resource>
 
 
 namespace wbuffer {
-constexpr size_t kMinCapacity = 128; // NOLINT(readability-identifier-naming)
+constexpr size_t kDefaultCapacity = 128; // NOLINT(readability-identifier-naming)
 constexpr size_t kResizeScale = 2; // NOLINT(readability-identifier-naming)
 
 
 class WBuffer {
-    inline static size_t min_capacity = kMinCapacity;
+    inline static size_t default_capacity = kDefaultCapacity;
     inline static size_t resize_scale = kResizeScale;
 
     uint8_t* data_ = nullptr;
@@ -78,8 +77,8 @@ class WBuffer {
     [[nodiscard]] uint8_t& operator[](size_t index);
     [[nodiscard]] uint8_t operator[](size_t index) const;
 
-    [[nodiscard]] bool operator==(const WBuffer& another) const noexcept;
-    [[nodiscard]] bool operator!=(const WBuffer& another) const noexcept;
+    [[nodiscard]] bool operator==(const WBuffer& another) const;
+    [[nodiscard]] bool operator!=(const WBuffer& another) const;
 
     void SetAllocator(std::pmr::memory_resource* alloc) noexcept;
 

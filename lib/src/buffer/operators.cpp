@@ -25,12 +25,20 @@ uint8_t WBuffer::operator[](size_t index) const {
 }
 
 
-bool WBuffer::operator==(const WBuffer& another) const noexcept {
-    return data_ == another.data_;
+bool WBuffer::operator==(const WBuffer& another) const {
+    if (size_ != another.size_) {
+        return false;
+    }
+    for (int i = 0; i < size_; ++i) {
+        if (data_[i] != another.data_[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
-bool WBuffer::operator!=(const WBuffer& another) const noexcept {
+bool WBuffer::operator!=(const WBuffer& another) const {
     return !(*this == another);
 }
 
