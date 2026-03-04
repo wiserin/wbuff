@@ -67,7 +67,7 @@ jobs:
     - name: Run tests (ASan)
       run: |
         cd build/tests
-        ./wiseio_tests
+        ./wbuffer_tests
 
     - name: ASan summary
       if: always()
