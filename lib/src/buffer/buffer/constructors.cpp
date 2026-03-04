@@ -32,7 +32,7 @@ WBuffer::WBuffer(const WBuffer& another)
         size_ = another.size_;
 
     } catch(...) {
-        resource_->deallocate(data_, capacity_, alignof(uint8_t));
+        resource_->deallocate(data_, another.capacity_, alignof(uint8_t));
         throw;
     }
 }
@@ -49,7 +49,7 @@ WBuffer& WBuffer::operator=(const WBuffer& another) {
         std::memcpy(tmp, another.data_, another.size_);
         resource_ = another.resource_;
         if (data_ != nullptr) {
-            resource_->deallocate(data_, capacity_, alignof(uint8_t));
+            resource_->deallocate(data_, another.capacity_, alignof(uint8_t));
         }
         data_ = tmp;
         capacity_ = another.capacity_;
@@ -90,6 +90,44 @@ WBuffer& WBuffer::operator=(WBuffer&& another) noexcept {
     another.resource_ = nullptr;
     another.size_ = 0;
     another.capacity_ = 0;
+
+    return *this;
+}
+
+
+WBuffer::WBuffer(const WBufferSlice& slice)
+        : resource_(slice.GetAlloc()) {
+    data_ = reinterpret_cast<uint8_t*>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        resource_->allocate(slice.Capacity(), alignof(uint8_t)));
+    try {
+        for (size_t i = 0; i < slice.Size(); ++i) {
+            data_[i] = slice[i];
+        }
+        capacity_ = slice.Capacity();
+        size_ = slice.Size();
+
+    } catch(...) {
+        resource_->deallocate(data_, slice.Capacity(), alignof(uint8_t));
+        throw;
+    }
+}
+
+
+WBuffer& WBuffer::operator=(const WBufferSlice& slice) {
+    resource_ = slice.GetAlloc();
+    data_ = reinterpret_cast<uint8_t*>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        resource_->allocate(slice.Capacity(), alignof(uint8_t)));
+    try {
+        for (size_t i = 0; i < slice.Size(); ++i) {
+            data_[i] = slice[i];
+        }
+        capacity_ = slice.Capacity();
+        size_ = slice.Size();
+
+    } catch(...) {
+        resource_->deallocate(data_, slice.Capacity(), alignof(uint8_t));
+        throw;
+    }
 
     return *this;
 }

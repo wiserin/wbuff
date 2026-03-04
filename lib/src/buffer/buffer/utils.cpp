@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <memory_resource>
 #include <utility>
 
 #include "wbuffer/buffer.hpp"
@@ -24,8 +25,13 @@ void WBuffer::Swap(WBuffer& lhs, WBuffer& rhs) noexcept {
 }
 
 
-void WBuffer::SetAllocator(std::pmr::memory_resource* alloc) noexcept {
+void WBuffer::SetAlloc(std::pmr::memory_resource* alloc) noexcept {
     resource_ = alloc;
+}
+
+
+std::pmr::memory_resource* WBuffer::GetAlloc() const noexcept {
+    return resource_;
 }
 
 
@@ -55,7 +61,7 @@ void WBuffer::Clear() {
 
 
 void WBuffer::SetDefaultCapacity(size_t new_capacity) noexcept {
-    min_capacity = new_capacity;
+    default_capacity = new_capacity;
 }
 
 
@@ -73,7 +79,7 @@ void WBuffer::Resize(size_t new_size) {
             memcpy(tmp, data_, std::min(new_size, size_));
             resource_->deallocate(data_, capacity_, alignof(uint8_t));
         }
-        size_ = size_ < new_size ? new_size : size_;
+        size_ = size_ < new_size ? size_ : new_size;
         capacity_ = new_size;
         data_ = tmp;
     } catch (...) {

@@ -12,10 +12,10 @@ namespace wbuffer {
 
 void WBuffer::RightShift(size_t index, size_t count) { // NOLINT(bugprone-easily-swappable-parameters)
     if (size_ + count > capacity_) {
-        Resize(std::max(capacity_ * resize_scale, kMinCapacity));
+        Resize(std::max(capacity_ * resize_scale, default_capacity));
     }
-    for (size_t i = size_ - 1; i >= index; --i) {
-        data_[i + count] = data_[i];
+    for (size_t i = size_; i > index; --i) {
+        data_[i + count - 1] = data_[i - 1];
     }
     size_ += count;
 }
@@ -24,6 +24,7 @@ void WBuffer::RightShift(size_t index, size_t count) { // NOLINT(bugprone-easily
 void WBuffer::LeftShift(size_t index, size_t count) { // NOLINT(bugprone-easily-swappable-parameters)
     while (index + count < size_) {
         data_[index] = data_[index + count];
+        ++index;
     }
 
     size_ -= count;
@@ -64,6 +65,7 @@ WBuffer::Iterator WBuffer::Insert(
     while (begin != end) {
         data_[i] = *begin;
         ++begin;
+        ++i;
     }
     return Begin() + index;
 }

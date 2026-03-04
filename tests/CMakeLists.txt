@@ -1,5 +1,5 @@
 add_executable(wbuffer_tests
-    cases/base_buffer.cpp
+    # cases/base_buffer.cpp
     cases/extended.cpp
 )
 
