@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <memory_resource>
 #include <utility>
 
 #include "wbuffer/buffer.hpp"
@@ -24,8 +25,13 @@ void WBuffer::Swap(WBuffer& lhs, WBuffer& rhs) noexcept {
 }
 
 
-void WBuffer::SetAllocator(std::pmr::memory_resource* alloc) noexcept {
+void WBuffer::SetAlloc(std::pmr::memory_resource* alloc) noexcept {
     resource_ = alloc;
+}
+
+
+std::pmr::memory_resource* WBuffer::GetAlloc() const noexcept {
+    return resource_;
 }
 
 

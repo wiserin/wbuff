@@ -10,8 +10,6 @@ using namespace wbuffer;
 // Helpers
 // ──────────────────────────────────────────────────────────────
 
-// Все тесты используют monotonic_buffer_resource как PMR-аллокатор.
-// Размер пула 64KB — более чем достаточно для любого теста ниже.
 static constexpr size_t kPoolSize = 64 * 1024;
 
 struct Alloc {
@@ -29,7 +27,6 @@ TEST(WBufferConstruct, DefaultCtorIsEmpty) {
     WBuffer b;
     EXPECT_TRUE(b.Empty());
     EXPECT_EQ(b.Size(), 0u);
-    // capacity == 0 до первого SetAllocator / PushBack
     EXPECT_EQ(b.Capacity(), 0u);
 }
 
@@ -38,8 +35,6 @@ TEST(WBufferConstruct, AllocOnlyCtorIsEmpty) {
     WBuffer b(a.get());
     EXPECT_TRUE(b.Empty());
     EXPECT_EQ(b.Size(), 0u);
-    // Буфер ещё не аллоцирован — capacity должна быть 0 или kMinCapacity,
-    // зависит от реализации; главное что Empty() == true
 }
 
 TEST(WBufferConstruct, CapacityCtorSetsCapacity) {
@@ -52,18 +47,18 @@ TEST(WBufferConstruct, CapacityCtorSetsCapacity) {
 
 TEST(WBufferConstruct, CapacityLessThanMinUsesMin) {
     Alloc a;
-    WBuffer b(1, a.get());   // меньше kMinCapacity=128
+    WBuffer b(1, a.get());
     EXPECT_EQ(b.Capacity(), 1);
 }
 
 // ──────────────────────────────────────────────────────────────
-// SetAllocator  (смысл дефолтного ctor)
+// SetAlloc
 // ──────────────────────────────────────────────────────────────
 
 TEST(WBufferSetAllocator, DefaultThenSetAllocatorAllowsPush) {
     Alloc a;
     WBuffer b;
-    b.SetAllocator(a.get());
+    b.SetAlloc(a.get());
     b.PushBack(42);
     EXPECT_EQ(b.Size(), 1u);
     EXPECT_EQ(b.Front(), 42);
@@ -72,8 +67,8 @@ TEST(WBufferSetAllocator, DefaultThenSetAllocatorAllowsPush) {
 TEST(WBufferSetAllocator, SetAllocatorOnEmptyBufferDoesNotLeak) {
     Alloc a;
     WBuffer b;
-    b.SetAllocator(a.get());
-    b.SetAllocator(a.get());  // повторный вызов на пустом — не должен крашиться
+    b.SetAlloc(a.get());
+    b.SetAlloc(a.get());
     EXPECT_TRUE(b.Empty());
 }
 
@@ -137,7 +132,6 @@ TEST(WBufferPushPop, MutateViaBackRef) {
 
 TEST(WBufferPushPop, PushTriggersGrowth) {
     Alloc a;
-    // Грузим больше kMinCapacity элементов — должен вырасти
     WBuffer b(a.get());
     for (int i = 0; i < 300; ++i) b.PushBack(static_cast<uint8_t>(i & 0xFF));
     EXPECT_EQ(b.Size(), 300u);
@@ -314,7 +308,7 @@ TEST(WBufferSwap, SwapWithEmpty) {
     EXPECT_EQ(y.Front(), 5);
 }
 
-// ────────��─────────────────────────────────────────────────────
+// ────────-─────────────────────────────────────────────────────
 // Clear
 // ──────────────────────────────────────────────────────────────
 
@@ -334,7 +328,6 @@ TEST(WBufferClear, ClearDoesNotFreeCapacity) {
     EXPECT_EQ(b.Capacity(), kDefaultCapacity);
     EXPECT_EQ(b.Size(), 8);
     b.Clear();
-    // capacity не должна уменьшиться после clear
     EXPECT_EQ(b.Capacity(), 0);
 }
 
@@ -392,7 +385,7 @@ TEST(WBufferResize, ResizeSameSizeIsNoOp) {
 }
 
 // ──────────────────────────────────────────────────────────────
-// Iterator — базовые операции
+// Iterator
 // ────────────────────────────────────────────────────────��─────
 
 TEST(WBufferIterator, BeginEqualsEndOnEmpty) {
@@ -486,7 +479,7 @@ TEST(WBufferIterator, SubscriptOperator) {
 }
 
 // ──────────────────────────────────────────────────────────────
-// Iterator — сравнения
+// Iterator
 // ──────────────────────────────────────────────────────────────
 
 TEST(WBufferIterator, EqualityOnSamePosition) {
@@ -652,10 +645,10 @@ TEST(WBufferErase, EraseEmptyRange) {
 TEST(WBufferErase, EraseRangeInMiddle) {
     Alloc a;
     WBuffer b(a.get());
-    for (uint8_t i = 0; i < 5; ++i) b.PushBack(i);  // 0 1 2 3 4
-    auto beg = b.Begin(); ++beg;                       // -> 1
-    auto end = beg; ++end; ++end;                      // -> 3
-    b.Erase(beg, end);                                 // удаляем 1, 2
+    for (uint8_t i = 0; i < 5; ++i) b.PushBack(i);
+    auto beg = b.Begin(); ++beg;
+    auto end = beg; ++end; ++end;
+    b.Erase(beg, end);
     EXPECT_EQ(b.Size(), 3u);
     EXPECT_EQ(b[0], 0);
     EXPECT_EQ(b[1], 3);
@@ -667,24 +660,20 @@ TEST(WBufferErase, EraseRangeInMiddle) {
 // ──────────────────────────────────────────────────────────────
 
 TEST(WBufferStaticSetters, SetDefaultCapacityAffectsNewAlloc) {
-    // Выставляем кастомный минимум, создаём буфер — capacity >= нового минимума
     WBuffer::SetDefaultCapacity(256);
     Alloc a;
     WBuffer b(a.get());
-    b.PushBack(1);  // триггер первой аллокации
+    b.PushBack(1);
     EXPECT_GE(b.Capacity(), 256u);
-    // Восстанавливаем дефолт, чтобы не ломать другие тесты
     WBuffer::SetDefaultCapacity(kDefaultCapacity);
 }
 
 TEST(WBufferStaticSetters, SetResizeScaleAffectsGrowth) {
-    // Ставим scale=4, пушим > kMinCapacity — должен прыгнуть на *4
     WBuffer::SetResizeScale(4);
     Alloc a;
     WBuffer b(a.get());
     for (int i = 0; i <= static_cast<int>(kDefaultCapacity); ++i)
         b.PushBack(static_cast<uint8_t>(i & 0xFF));
-    // После роста capacity должна быть >= kMinCapacity * 4
     EXPECT_GE(b.Capacity(), kDefaultCapacity * 4);
     WBuffer::SetResizeScale(kResizeScale);
 }
@@ -694,7 +683,6 @@ TEST(WBufferStaticSetters, SetResizeScaleAffectsGrowth) {
 // ──────────────────────────────────────────────────────────────
 
 TEST(WBufferStress, PushBackManyElements) {
-    // Используем unsynchronized_pool_resource — поддерживает много аллокаций
     std::pmr::unsynchronized_pool_resource pool;
     WBuffer b(&pool);
     constexpr size_t N = 10'000;

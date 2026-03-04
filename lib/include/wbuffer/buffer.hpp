@@ -66,12 +66,12 @@ class BaseWBuffer { // NOLINT(cppcoreguidelines-special-member-functions)
 
     [[nodiscard]] virtual size_t Size() const noexcept = 0;
     [[nodiscard]] virtual size_t Capacity() const noexcept = 0;
-    [[nodiscard]] virtual bool Empty() const noexcept = 0;
 
     virtual ~BaseWBuffer() = default;
 };
 
 class WBufferSlice;
+
 
 class WBuffer : public BaseWBuffer {
     inline static size_t default_capacity = kDefaultCapacity;
@@ -98,8 +98,8 @@ class WBuffer : public BaseWBuffer {
     WBuffer(WBuffer&& another) noexcept;
     WBuffer& operator=(WBuffer&& another) noexcept;
 
-    WBuffer(const WBufferSlice& another);
-    WBuffer& operator=(const WBufferSlice& another);
+    WBuffer(const WBufferSlice& slice);
+    WBuffer& operator=(const WBufferSlice& slice);
 
     WBuffer(std::pmr::memory_resource* alloc);
     WBuffer(size_t capacity, std::pmr::memory_resource* alloc);
@@ -112,8 +112,6 @@ class WBuffer : public BaseWBuffer {
 
     [[nodiscard]] bool operator==(const WBuffer& another) const;
     [[nodiscard]] bool operator!=(const WBuffer& another) const;
-
-    void SetAllocator(std::pmr::memory_resource* alloc) noexcept;
 
     void Swap(WBuffer& another) noexcept;
     static void Swap(WBuffer& lhs, WBuffer& rhs) noexcept;
@@ -139,8 +137,10 @@ class WBuffer : public BaseWBuffer {
 
     [[nodiscard]] size_t Size() const noexcept override;
     [[nodiscard]] size_t Capacity() const noexcept override;
-    [[nodiscard]] bool Empty() const noexcept override;
+    [[nodiscard]] bool Empty() const noexcept;
+    void SetAlloc(std::pmr::memory_resource* alloc) noexcept;
     [[nodiscard]] std::pmr::memory_resource* GetAlloc() const noexcept;
+    [[nodiscard]] WBufferSlice GetSlice(size_t start, size_t end) const;
     void Clear();
 
     void Resize(size_t new_size);
@@ -158,7 +158,7 @@ class WBufferSlice : public BaseWBuffer { // NOLINT(cppcoreguidelines-pro-type-m
  public:
     WBufferSlice() = default;
 
-    WBufferSlice(WBuffer* buffer, size_t start, size_t end);
+    WBufferSlice(WBuffer* buffer, size_t start, size_t end) noexcept;
 
     WBufferSlice(const WBufferSlice& another) = delete;
     WBufferSlice& operator=(const WBufferSlice& another) = delete;
@@ -172,8 +172,8 @@ class WBufferSlice : public BaseWBuffer { // NOLINT(cppcoreguidelines-pro-type-m
     [[nodiscard]] bool operator==(const BaseWBuffer& another) const override;
     [[nodiscard]] bool operator!=(const BaseWBuffer& another) const override;
 
-    [[nodiscard]] bool operator==(const WBuffer& another) const;
-    [[nodiscard]] bool operator!=(const WBuffer& another) const;
+    [[nodiscard]] bool operator==(const WBufferSlice& another) const;
+    [[nodiscard]] bool operator!=(const WBufferSlice& another) const;
 
     [[nodiscard]] uint8_t& Front() override;
     [[nodiscard]] uint8_t Front() const override;
@@ -186,7 +186,8 @@ class WBufferSlice : public BaseWBuffer { // NOLINT(cppcoreguidelines-pro-type-m
 
     [[nodiscard]] size_t Size() const noexcept override;
     [[nodiscard]] size_t Capacity() const noexcept override;
-    [[nodiscard]] bool Empty() const noexcept override;
+
+    [[nodiscard]] std::pmr::memory_resource* GetAlloc() const noexcept;
 
     ~WBufferSlice() override = default;
 };
